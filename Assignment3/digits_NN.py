@@ -9,8 +9,8 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 from keras.utils import to_categorical
 from sklearn import preprocessing
-from neuralnetworks import Neural_Network
-
+from NN import Neural_Network
+np.random.seed(42)
 
 digits = load_digits()
 
@@ -31,11 +31,12 @@ def transform_features(X, mean, sigma):
 
 
 
-
-activation_list=["sigmoid","identity","identity","softmax"]
-num_layers=3
-hidden_nodes=[32,16,10,10]
-
+X=np.array(X)
+y=np.array(y)
+activation_list=["sigmoid","sigmoid","identity"]
+num_layers=2
+hidden_nodes=[32,16,10]
+#hidden_nodes=[50,32,16,10]
 
 print("3 fold cross validation")
 #4 fold cross validation
@@ -73,15 +74,24 @@ for i in range(k_fold):
     temp = []
     for j in range(len(y_train)):
         temp.append(to_categorical(y_train[j], num_classes=10))
+    X_train=np.array(X_train)    
     y_train = np.array(temp)
+    X_test=np.array(X_test)
     X_train,mean,sigma=scale_features(X_train)
     X_test=transform_features(X_test,mean,sigma)
-    neural_network=Neural_Network(num_layers,hidden_nodes,activation_list,X_train,200,2) 
+    
+    neural_network=Neural_Network(num_layers,hidden_nodes,activation_list,X_train,20,0.5) 
     neural_network.train(X_train,y_train)
-    y_hat=neural_network.predict(X_test)
-    y_hat = np.argmax(y_hat, axis=1)
+    y_pred=neural_network.predict(X_test)
+    y_hat = []
+    for j in y_pred:
+        y_hat.append(np.argmax(j))
+    y_pred = np.argmax(y_pred, axis=1)
+
     y_hat=pd.Series(y_hat)
     y_test=pd.Series(y_test)
+    # print(y_hat)
+    # print(y_test)
     acc=accuracy(y_hat,y_test)
     if(acc>max_acc):
         best_model=neural_network

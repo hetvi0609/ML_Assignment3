@@ -4,29 +4,24 @@ import pandas as pd
 from sklearn.datasets import load_boston
 from metrics import *
 from sklearn.model_selection import train_test_split
-from neuralnetworks import Neural_Network
+from NN import Neural_Network
+from sklearn.preprocessing import MinMaxScaler
+np.random.seed(42)
 
 X,y= load_boston(return_X_y=True)
+X=pd.DataFrame(X)
+y=pd.DataFrame(y)
+df=pd.concat([X,y],axis=1)
+scaler = MinMaxScaler(feature_range=(0, 1))
+df = scaler.fit_transform(df)
+multiplied_by = scaler.scale_[12]
+added = scaler.min_[12]
 
-#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
-
-def scale_features(X):
-    mean=np.mean(X)
-    sigma=np.std(X)
-    X_norm=(X-mean)/sigma
-    return X_norm,mean,sigma
-
-def transform_features(X, mean, sigma):
-    X_norm = (X - mean)/sigma
-    return X_norm
-
-
-
-
-
-activation_list=["sigmoid","sigmoid","Relu","Relu","Relu","Relu","sigmoid"]
+X=df[:,:-1]
+y=df[:,-1]
+activation_list=["Relu","sigmoid","Relu","sigmoid","Relu","sigmoid","sigmoid"]
 num_layers=6
-hidden_nodes=[64,32,16,10,5,2,1]
+hidden_nodes=[50,100,50,30,20,2,1]
 
 print("3 fold cross validation")
 #4 fold cross validation
@@ -46,6 +41,7 @@ def five_fold_cross_validation(dataset,i,k_fold):
         train=pd.concat([train_left,train_right],axis=0)
     train=train.reset_index(drop=True)
     return train,test
+
 X=pd.DataFrame(X)
 y=pd.Series(y)
 df=pd.concat([X,y],ignore_index=True,axis=1)
@@ -60,19 +56,19 @@ for i in range(k_fold):
     y_train=train[train.columns[-1]]
     X_test=test[test.columns[:-1]]
     y_test=test[test.columns[-1]]
-    temp = []
-    for j in range(len(y_train)):
-        temp.append([y_train[j]])
-    y_train = np.array(temp)
-    X_train,mean,sigma=scale_features(X_train)
-    X_test=transform_features(X_test,mean,sigma)
-    neural_network=Neural_Network(num_layers,hidden_nodes,activation_list,X_train,100,0.3) 
-    neural_network.train(X_train,y_train)
-    y_hat=neural_network.predict(X_test)
-    y_hat = np.max(y_hat, axis=1)
 
-    y_hat=pd.Series(y_hat)
+    X_train=np.array(X_train)    
+    X_test=np.array(X_test)
+    neural_network=Neural_Network(num_layers,hidden_nodes,activation_list,X_train,30,1) 
+    neural_network.train(X_train,y_train)
+    y_pred=neural_network.predict(X_test)
+    #as the data was scaled it needs to be scaled
+    y_hat = []
+    for j in y_pred:
+        y_hat.append((np.max(j)-added)/multiplied_by)
+    y_test=(y_test-added)/multiplied_by
     y_test=pd.Series(y_test)
+    y_hat=pd.Series(y_hat)
 
     acc=rmse(y_hat,y_test)
     if(acc<min_rmse):
@@ -83,7 +79,7 @@ for i in range(k_fold):
         X_test_best=X_test
         y_test_best=y_test
     print("-----------")
-    print("rmse of",i+1,"th fold:",acc)
+    print("Rmse of",i+1,"th fold:",acc)
     avg=avg+acc
 average_accuaracy=avg/k_fold
-print("This is the average accuracy",average_accuaracy)
+print("This is the average Rmse",average_accuaracy)
