@@ -2,7 +2,6 @@ import pandas as pd
 import random
 from autograd import elementwise_grad
 import autograd.numpy as np
-import 
 np.random.seed(42)
 
 class Neural_Network():
