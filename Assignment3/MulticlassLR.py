@@ -15,7 +15,6 @@ class LogisticRegressor():
         '''
 
         self.type=None
-        self.intercept=False
 
     def softmax(self,thetas,sample,class_id):
         theta_k=thetas[class_id]

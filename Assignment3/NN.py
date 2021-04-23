@@ -2,6 +2,8 @@ import pandas as pd
 import random
 from autograd import elementwise_grad
 import autograd.numpy as np
+import 
+np.random.seed(42)
 
 class Neural_Network():
     def __init__(self,num_layers,hidden_nodes,activation_list,data,iterations,alpha): # Optional Arguments: Type of estimator 

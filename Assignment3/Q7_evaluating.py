@@ -67,7 +67,7 @@ def load_image(filename):
 # load an image and predict the class
 def run_example():
 	# load the image
-	img = load_image('sample1_image.jpeg')
+	img = load_image('sample2_image.jpeg')
 	# load model
 	model = load_model('final_model.h5')
 	# predict the class
@@ -77,18 +77,19 @@ def run_example():
 # entry point, run the example
 result=run_example()
 print(result)
-if(result==0):   
-    # reading the image
-    testImage = img.imread('sample1_image.jpeg')
+if(result==1):   
+	# reading the image
+    testImage = img.imread('sample2_image.jpeg')
     # displaying the image
     imgplot=plt.imshow(testImage)
     plt.title("Sachin")
     plt.show()
+
 else:
     # reading the image
-    testImage = img.imread('sample1_image.jpeg')
+    testImage = img.imread('sample2_image.jpeg')
     # displaying the image
     imgplot=plt.imshow(testImage)
-    plt.title("Sachin")
+    plt.title("Harbhajan")
     plt.show()
 
